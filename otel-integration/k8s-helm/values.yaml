@@ -166,6 +166,17 @@ opentelemetry-agent:
         endpoint: localhost:55679
       pprof:
         endpoint: localhost:1777
+      opamp:
+        server:
+          http:
+            endpoint: "https://ingress.{{ .Values.global.domain }}/opamp/v1"
+            headers:
+              Authorization: "Bearer ${env:CORALOGIX_PRIVATE_KEY}"
+        agent_description:
+          non_identifying_attributes:
+          - cx.agent.type: "agent"
+          - cx.cluster.name: "{{.Values.global.clusterName}}"
+          - k8s.node.name: ${env:KUBE_NODE_NAME}
 
     receivers:
       statsd:
@@ -278,6 +289,7 @@ opentelemetry-agent:
         - zpages
         - pprof
         - health_check
+        - opamp
       pipelines:
         metrics:
           exporters:
@@ -423,6 +435,17 @@ opentelemetry-cluster-collector:
         endpoint: localhost:55679
       pprof:
         endpoint: localhost:1777
+      opamp:
+        server:
+          http:
+            endpoint: "https://ingress.{{ .Values.global.domain }}/opamp/v1"
+            headers:
+              Authorization: "Bearer ${env:CORALOGIX_PRIVATE_KEY}"
+        agent_description:
+          non_identifying_attributes:
+          - cx.agent.type: "cluster-collector"
+          - cx.cluster.name: "{{.Values.global.clusterName}}"
+          - k8s.node.name: ${env:KUBE_NODE_NAME}
     receivers:
       k8s_cluster:
         collection_interval: "{{.Values.global.collectionInterval}}"
@@ -593,6 +616,7 @@ opentelemetry-cluster-collector:
         - zpages
         - pprof
         - health_check
+        - opamp
       pipelines:
         logs:
           exporters:
@@ -681,6 +705,7 @@ opentelemetry-gateway:
       enabled: true
       clusterName: "{{.Values.global.clusterName}}"
       integrationName: "coralogix-integration-helm"
+  
   # Temporary feature gates to prevent breaking changes. Please see changelog for version 0.0.85 for more information.
   command:
     name: otelcol-contrib
@@ -692,6 +717,17 @@ opentelemetry-gateway:
         endpoint: localhost:55679
       pprof:
         endpoint: localhost:1777
+      opamp:
+        server:
+          http:
+            endpoint: "https://ingress.{{ .Values.global.domain }}/opamp/v1"
+            headers:
+              Authorization: "Bearer ${env:CORALOGIX_PRIVATE_KEY}"
+        agent_description:
+          non_identifying_attributes:
+          - cx.agent.type: "cluster-collector"
+          - cx.cluster.name: "{{.Values.global.clusterName}}"
+          - k8s.node.name: ${env:KUBE_NODE_NAME}
     exporters:
       coralogix:
         timeout: "30s"
@@ -782,6 +818,11 @@ opentelemetry-gateway:
           encoding: json
         metrics:
           address: ${env:MY_POD_IP}:8888
+      extensions:
+      - zpages
+      - pprof
+      - health_check
+      - opamp
       pipelines:
         metrics:
           exporters:

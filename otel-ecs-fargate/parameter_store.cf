@@ -9,6 +9,16 @@ Resources:
       Description: Configuration parameter for Coralogix OTEL Collector
       Type: String
       Value: |
+        extensions:
+          opamp:
+            server:
+              http:
+                endpoint: "https://ingress.${CORALOGIX_DOMAIN}/opamp/v1"
+                headers:
+                  Authorization: "Bearer ${PRIVATE_KEY}"
+            agent_description:
+              non_identifying_attributes:
+              - cx.agent.type: "fargate"
         exporters:
           coralogix:
             application_name: 'otel'
@@ -66,6 +76,8 @@ Resources:
                 - targets:
                   - 127.0.0.1:8888
         service:
+          extensions:
+            - opamp
           pipelines:
             metrics:
               exporters:
